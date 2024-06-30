@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,9 +17,12 @@ Route::group([
 
 });
 
-Route::middleware(['auth:api'])->group(function () {
-    Route::post('me', [AuthController::class, 'me']);
+Route::middleware([JwtMiddleware::class])->group(function () {
+    Route::get('me', [AuthController::class, 'me']);
     Route::post('logout', [AuthController::class, 'logout']);
     Route::post('refresh', [AuthController::class, 'refresh']);
 
+    Route::prefix('tour')->group(function(){
+        // Route::post('create',)
+    });
 });

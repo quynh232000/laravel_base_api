@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Str;
 use Hash;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
@@ -65,7 +66,11 @@ class AuthController extends Controller
 
     public function me()
     {
-        return Response::json(true, 'Success', response()->json(auth()->user()));
+        
+        $user = auth()->user();
+        if ($user == null)
+            return Response::json(false, "Unauthorized");
+        return Response::json(true, 'Success', auth()->user());
     }
 
 
