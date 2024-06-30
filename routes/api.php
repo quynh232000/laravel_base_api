@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\TourController;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +24,6 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::post('refresh', [AuthController::class, 'refresh']);
 
     Route::prefix('tour')->group(function(){
-        // Route::post('create',)
+        Route::post('create',[TourController::class,'create']);
     });
 });
