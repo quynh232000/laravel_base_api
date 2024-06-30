@@ -2,10 +2,15 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Middleware\AdminMiddleware;
-use App\Models\Product;
+
 use Illuminate\Support\Facades\Route;
 
 
+
+
+// Route::get('/api/documentation', function () {
+//     return redirect('/api/documentation/index.html');
+// });
 Route::get('/login', function () {
     return view('login');
 })->name('login');

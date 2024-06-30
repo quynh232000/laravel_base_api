@@ -9,12 +9,28 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Hash;
 
+
 class AdminController extends Controller
 {
+    /**
+     * @OA\Get(
+     *      path="/tour/list",
+     *      operationId="getlisttour",
+     *      tags={"GetListTour"},
+     *      summary="Get list of Tours",
+     *      description="Returns a list of tours",
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent()
+     *      ),
+     *      security={
+     *          {"api_key": {}}
+     *      }
+     * )
+     */
     public function list()
     {
-
-        // return 123;
         $tours = Product::latest()->paginate(10);
         return view('list', compact('tours'));
     }
@@ -60,10 +76,7 @@ class AdminController extends Controller
             return redirect()->route('list')->with('error', 'Xóa tour thất bại');
         }
     }
-    public
-        function hidden(
-        $id
-    ) {
+    public function hidden($id) {
         $product = Product::find($id);
         if ($product) {
             $product->is_show = 0;

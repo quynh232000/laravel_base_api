@@ -13,6 +13,7 @@ use Str;
 
 class TourController extends Controller
 {
+
     public function create(Request $request)
     {
 

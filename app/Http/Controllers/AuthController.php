@@ -12,9 +12,52 @@ use Str;
 use Hash;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
+
 class AuthController extends Controller
 {
 
+       /**
+     * @OA\Post(
+     *      path="/api/auth/register",
+     *      operationId="register",
+     *      tags={"Users"},
+     *      summary="Register a user",
+     *      description="Returns new user",
+     *     
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="full_name",
+     *                     description="Your full name",
+     *                     type="string",
+     *                      example="Nguyen van a"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="email",
+     *                     description="Your email address",
+     *                     type="string",
+     *                      example="test@gmail.com"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="password",
+     *                     description="Your password",
+     *                     type="string"
+     *                 ),
+     *                @OA\Property(
+     *                     property="password_confirmation",
+     *                     description="confirm password",
+     *                     type="string"
+     *                 ),
+     *             )
+     *         )
+     *     ),
+     *      @OA\Response(response="405", description="Invalid input"),
+     * )
+     */
     public function register(Request $request)
     {
 
@@ -41,6 +84,40 @@ class AuthController extends Controller
         return Response::json(true, 'Register successful', $user, $this->respondWithToken($token));
     }
 
+
+    /**
+     * @OA\Post(
+     *      path="/api/auth/login",
+     *      operationId="login",
+     *      tags={"Users"},
+     *      summary="Login",
+     *      description="Returns user",
+     *     
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 type="object",
+     *                 @OA\Property(
+     * 
+     *                     property="email",
+     *                     description="Your email address",
+     *                     type="string",
+     *                    example="test@gmail.com"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="password",
+     *                     description="Your password",
+     *                     type="string",
+     *                     example="123456"
+     *                 ),
+     *             )
+     *         )
+     *     ),
+     *      @OA\Response(response="405", description="Invalid input"),
+     * )
+     */
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -58,15 +135,45 @@ class AuthController extends Controller
             return Response::json(false, 'Mật khẩu không đúng!', $validator->errors());
         }
 
-       
+
 
         return Response::json(true, 'Login successfully!', auth('api')->user(), $this->respondWithToken($token));
     }
 
 
+
+
+    /**
+     * @OA\Get(
+    
+     * 
+     *      path="/api/me",
+     *      operationId="getme",
+     *      tags={"Users"},
+     *      summary="Get User Information",
+     *      description="Returns user information",
+     *      @OA\Header(
+     *         header="Authorization",
+     *         description="Api key header",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string"
+     *         )
+     *     ),
+     *  security={{
+     *         "bearer": {}
+     *     }},
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid ID supplied"
+     *     ),
+     * 
+     *     
+     * )
+     */
     public function me()
     {
-        
+
         $user = auth()->user();
         if ($user == null)
             return Response::json(false, "Unauthorized");
