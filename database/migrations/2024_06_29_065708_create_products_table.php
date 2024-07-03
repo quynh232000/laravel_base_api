@@ -27,6 +27,7 @@ return new class extends Migration {
             $table->double('percent_sale')->default(0);
             $table->double('additional_fee')->default(0);
             $table->integer("province_start_id");
+            $table->integer("country_id")->default(232);
             $table->integer("province_end_id");
             $table->integer('number_of_day')->default(1);
             $table->enum('tour_pakage', ['luxury', 'standard', 'affordable', 'saving'])->default('standard');

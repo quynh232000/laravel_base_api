@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('email');
             $table->string('full_name');
             $table->string('address');
+            $table->text('note');
             $table->string('phone_number');
             $table->enum('status',['success','cancel','used','failed'])->default('success');
             $table->boolean('payment_status')->default(0);

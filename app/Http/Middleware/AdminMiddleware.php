@@ -21,6 +21,6 @@ class AdminMiddleware
             return $next($request);
         }
        
-        return redirect('login')->with('errorMess','Bạn không có quyền truy cập vô đây!');
+        return redirect('login')->with('errorMess','Vui lòng đăng nhập quản trị viên!');
     }
 }

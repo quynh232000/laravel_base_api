@@ -19,6 +19,9 @@ return new class extends Migration
             $table->integer('quantity_child')->default(0);
             $table->integer('quantity_baby')->default(0);
             $table->double('additional_fee')->default(0);
+            $table->double('price')->default(0);
+            $table->double('price_child')->default(0);
+            $table->double('price_baby')->default(0);
 
             $table->timestamps();
         });

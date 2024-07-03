@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 
 /**
  * @OA\Info(
- *      title="API Documentation",
+ *      title="API Quin Travel",
  *      version="1.0.0"
  * )
  */
