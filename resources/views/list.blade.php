@@ -64,7 +64,13 @@
             </table>
         </div>
     </div>
+<style>
+    span.relative.z-0.inline-flex.rtl\:flex-row-reverse.shadow-sm.rounded-md {
+        display: none !important;
+}
 
+
+</style>
     <div class="row">
         <div class="col-md-12">
             <div class="my-3 d-flex justify-content-center ">

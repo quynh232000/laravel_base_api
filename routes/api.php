@@ -19,6 +19,7 @@ Route::group([
 ], function ($router) {
     Route::post('login', [AuthController::class, 'login']);
     Route::post('register', [AuthController::class, 'register']);
+    Route::post('withgoogle', [AuthController::class, 'googleAuthentication']);
 });
 
 Route::get('/get_country', [AuthController::class, 'get_city']);
@@ -46,11 +47,14 @@ Route::middleware([JwtMiddleware::class])->group(function () {
 });
 Route::prefix('/tour')->group(function () {
     Route::get('list_tour', [TourController::class, 'list_tour']);
+    Route::get('filterproducts', [TourController::class, 'filterProducts']);
     Route::get('/{slug}', [TourController::class, 'getDetail']);
 
 });
 Route::prefix('/order')->group(function () {
     Route::post('/checkout', [TourController::class, 'checkout']);
+    Route::post('/checkout-vnpay', [TourController::class, 'checkoutVnpay']);
+    Route::post('/checkout-vnpay-result', [TourController::class, 'checkoutVnpayResult']);
 });
 Route::prefix('/news')->group(function () {
     Route::get('list_news', [NewsController::class, 'list_news']);

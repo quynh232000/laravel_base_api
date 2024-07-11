@@ -8,6 +8,7 @@ use App\Models\Response;
 use App\Models\User;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Exception;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
@@ -88,7 +89,7 @@ class AuthController extends Controller
         $token = auth('api')->login($user);
         return Response::json(true, 'Register successful', $user, $this->respondWithToken($token));
     }
- /**
+    /**
      * @OA\Post(
      *      path="/api/auth/update_profile",
      *      operationId="update_profile",
@@ -134,7 +135,7 @@ class AuthController extends Controller
     public function update_profile(Request $request)
     {
         try {
-          
+
             $user = User::find(auth('api')->id());
 
             if (!$user) {
@@ -166,7 +167,7 @@ class AuthController extends Controller
             return Response::json(false, 'An error occurred while updating profile ', $e->getMessage());
         }
     }
- /**
+    /**
      * @OA\Post(
      *      path="/api/auth/change_password",
      *      operationId="change_password",
@@ -207,7 +208,7 @@ class AuthController extends Controller
     public function change_password(Request $request)
     {
         try {
-            
+
             $user = User::find(auth('api')->id());
             if (!$user) {
                 return Response::json(false, 'User not found');
@@ -222,7 +223,7 @@ class AuthController extends Controller
             if ($validate->fails()) {
                 return Response::json(false, 'Missing parameters', $validate->errors());
             }
-           
+
             if ($request->current_password && Hash::check($request->current_password, $user->password)) {
                 if ($request->new_password && $request->new_password_confirmation && $request->new_password == $request->new_password_confirmation) {
                     $user->password = Hash::make($request->new_password);
@@ -461,5 +462,83 @@ class AuthController extends Controller
     {
         $provinces = Province::all();
         return Response::json(true, 'Get provinces successfully!', $provinces);
+    }
+
+
+     /**
+     * @OA\Post(
+     *      path="/api/auth/withgoogle",
+     *      operationId="withgoogle",
+     *      tags={"Users"},
+     *      summary="Login with google",
+     *      description="Returns user",
+     *     
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="id_token",
+     *                     description="Your ID token, used to identify",
+     *                     type="string",
+     *                 ),
+     *             )
+     *         )
+     *     ),
+     *      @OA\Response(response="405", description="Invalid input"),
+     * )
+     */
+
+    public function googleAuthentication(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'id_token' => 'required|string',
+            ]);
+            if ($validator->fails()) {
+                return Response::json(false, 'Missing parameters id_token', $validator->errors());
+            }
+            $token = ($request->id_token);
+    
+            $parts = explode('.', $token);
+            if (count($parts) !== 3) {
+                return Response::json(false, "Invalid token");
+            }
+            $payload = $parts[1];
+            $decodedPayload = base64_decode($payload);
+            if ($decodedPayload === false) {
+                return Response::json(false, "Base64 decode failed");
+    
+            }
+            $data = json_decode($decodedPayload, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return Response::json(false, "JSON decode failed: " . json_last_error_msg());
+    
+            }
+            $user = User::where('email', $data['email'])->first();
+            // return $data;
+            if ($user) {
+                $token = auth('api')->login($user);
+                return Response::json(true, 'Login successfully!', auth('api')->user(), $this->respondWithToken($token));
+            } else {
+                $user = new User();
+                $user->uuid = Str::uuid();
+                $user->full_name = $data['name'];
+                $user->email = $data['email'];
+                $user->avatar = $data['picture'];
+                $user->password = Hash::make(Str::random(16));
+                $user->save();
+                $token = auth('api')->login($user);
+                return Response::json(true, 'Register successfully!', auth('api')->user(), $this->respondWithToken($token));
+            }
+    
+        } catch (Exception $e) {
+            return Response::json(false, "Error: ". $e->getMessage());
+        }
+
+
+
     }
 }

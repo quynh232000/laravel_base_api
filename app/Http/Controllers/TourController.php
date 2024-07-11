@@ -17,6 +17,10 @@ use Illuminate\Support\Facades\Mail;
 
 class TourController extends Controller
 {
+
+
+
+
     /**
      * @OA\Post(
      *      path="/api/tour/create",
@@ -328,10 +332,6 @@ class TourController extends Controller
     public function list_tour(Request $request)
     {
         try {
-     
-
-
-
             $page = $request->page ?? 1;
             $limit = $request->limit ?? 10;
 
@@ -339,69 +339,11 @@ class TourController extends Controller
             $value = $request->value;
             $sort = $request->sort;
 
-            // $query = Product::where('is_show', 1)
-            //     ->where(function ($query) use ($key, $value) {
-            //         if ($key && $value) {
-            //             switch ($key) {
-            //                 case 'number_of_day':
-            //                     $dates = explode('-', $value);
-            //                     if (count($dates) > 1) {
-            //                         $query->whereBetween('number_of_day', $dates);
-            //                     } else {
-            //                         $query->where($key, '>=', $value);
-            //                     }
-            //                     break;
-            //                 case 'price':
-            //                     $dates = explode('-', $value);
-            //                     if (count($dates) > 1) {
-            //                         $query->whereBetween('price', $dates);
-            //                     } else {
-            //                         $query->where($key, '>=', $value);
-            //                     }
-            //                     break;
-            //                 default:
-            //                     $query->where($key, 'LIKE', '%' . $value . '%');
-            //                     break;
-            //             }
-            //         }
-            //     })
-            //     ->where(function ($query) use ($sort) {
-            //         if ($sort) {
-            //             $sortArr = explode('-', $sort);
-            //             if (count($sortArr) == 2) {
-            //                 $query->orderBy($sortArr[0], $sortArr[1]);
-            //             } else {
-            //                 $query->orderBy($sort, "DESC");
-            //             }
-            //         }
-            //     })
-            //     ->with([
-            //         'country',
-            //         'province_start' => function ($query) {
-            //             $query->select('id', 'name');
-            //         },
-            //         'province_end' => function ($query) {
-            //             $query->select('id', 'name');
-            //         }
-            //     ]);
-
-            // // Paginate the results
-            // $tours = $query->paginate($limit, ['*'], 'page', $page);
-            // $tours->items()->map(function ($tour){
-            //     $tour->is_like = $tour->is_like();
-            //     $tour->like_count = $tour->like_count();
-            //     return $tour;
-            // });
-
             $query = Product::where('is_show', 1);
 
-            
             $query = $this->applyFilters($query, $key, $value);
-        
-           
+
             $query = $this->applySorting($query, $sort);
-        
-            
             $query->with([
                 'country',
                 'province_start' => function ($query) {
@@ -411,13 +353,13 @@ class TourController extends Controller
                     $query->select('id', 'name');
                 }
             ]);
-        
-            
+
+
             $tours = $query->paginate($limit, ['*'], 'page', $page);
-        
+
             // Add additional data to each tour
             $tours->getCollection()->transform(function ($tour) {
-                $user_id =auth('api')->id()??null;
+                $user_id = auth('api')->id() ?? null;
                 $tour->is_like = $tour->is_like($user_id);
                 $tour->like_count = $tour->like_count();
                 return $tour;
@@ -438,6 +380,204 @@ class TourController extends Controller
         }
     }
 
+    /**
+  * @OA\Get(
+ 
+  * 
+  *      path="/api/tour/filterproducts",
+  *      operationId="filterproducts",
+  *      tags={"Tour"},
+  *      summary="Get filter list list_tour",
+  *      description="Returns list list_tour information",
+  *    
+  *      @OA\Parameter(
+  *         description="page of tour to return",
+  *         in="query",
+  *         name="page",
+  *         required=false,
+  *         @OA\Schema(
+  *             type="integer",
+  *             format="int64"
+  *         )
+  *     ),
+  *     @OA\Parameter(
+  *         description="limit of tour to return",
+  *         in="query",
+  *         name="limit",
+  *         required=false,
+  *         @OA\Schema(
+  *             type="integer",
+  *             format="int64"
+  *         )
+  *     ),
+  *    @OA\Parameter(
+  *         description="inside, ouside",
+  *         in="query",
+  *         name="type",
+  *         required=false,
+  *         @OA\Schema(
+  *             type="string"
+  *         )
+  *     ),
+  *    @OA\Parameter(
+  *         description="province_id)",
+  *         in="query",
+  *         name="province_start_id",
+  *         required=false,
+  *         @OA\Schema(
+  *             type="string"
+  *         )
+  *     ),
+  * @OA\Parameter(
+  *         description="province_id)",
+  *         in="query",
+  *         name="province_end_id",
+  *         required=false,
+  *         @OA\Schema(
+  *             type="string"
+  *         )
+  *     ),@OA\Parameter(
+  *         description="0-4, 3)",
+  *         in="query",
+  *         name="number_of_day",
+  *         required=false,
+  *         @OA\Schema(
+  *             type="string"
+  *         )
+  *     ),@OA\Parameter(
+  *         description="2024-08-23",
+  *         in="query",
+  *         name="date_start",
+  *         required=false,
+  *         @OA\Schema(
+  *             type="string"
+  *         )
+  *     ),@OA\Parameter(
+  *         description="10000-450000, 3000000)",
+  *         in="query",
+  *         name="price",
+  *         required=false,
+  *         @OA\Schema(
+  *             type="string"
+  *         )
+  *     ),@OA\Parameter(
+  *         description="('luxury','standard','affordable','saving')",
+  *         in="query",
+  *         name="tour_pakage",
+  *         required=false,
+  *         @OA\Schema(
+  *             type="string"
+  *         )
+  *     ),@OA\Parameter(
+  *         description="(created_at-asc,desc)",
+  *         in="query",
+  *         name="order_by",
+  *         required=false,
+  *         @OA\Schema(
+  *             type="string"
+  *         )
+  *     ),
+  *    
+  *     @OA\Response(
+  *         response=400,
+  *         description="Invalid ID supplied"
+  *     ),
+  * 
+  *     
+  * )
+  */
+    public function filterProducts(Request $request)
+    {
+        try {
+            $page = $request->get('page', 1);
+            $limit = $request->get('limit', 10);
+
+            $type = $request->type;
+            $province_start_id = $request->province_start_id;
+            $province_end_id = $request->province_end_id;
+            $number_of_day = $request->number_of_day;
+            $date_start = $request->date_start;
+            $price = $request->price;
+            $tour_pakage = $request->tour_pakage;
+            $order_by = $request->order_by;
+
+            $query = Product::where('is_show', 1);
+
+            if (!empty($type)) {
+                $query->where('type', $type);
+            }
+            if (!empty($province_start_id)) {
+                $query->where('province_start_id', $province_start_id);
+            }
+            if (!empty($province_end_id)) {
+                $query->where('province_end_id', $province_end_id);
+            }
+            if (!empty($number_of_day)) {
+                $range = explode('-', $number_of_day);
+                if (count($range) === 2) {
+                    $query->whereBetween('number_of_day', [$range[0], $range[1]]);
+                } else {
+                    $query->where('number_of_day', '>=', $number_of_day);
+                }
+            }
+            if (!empty($date_start)) {
+                $query->where('date_start', 'LIKE', '%' . $date_start . '%');
+            }
+            if (!empty($price)) {
+                $range = explode('-', $price);
+                if (count($range) === 2) {
+                    $query->whereBetween('price', [$range[0], $range[1]]);
+                } else {
+                    $query->where('price', '>=', $price);
+                }
+            }
+            if (!empty($tour_pakage)) {
+                $query->where('tour_pakage', 'LIKE', '%' . $tour_pakage . '%');
+            }
+
+            if (!empty($order_by)) {
+                $sortArr = explode('-', $order_by);
+                if (count($sortArr) === 2) {
+                    $query->orderBy($sortArr[0], $sortArr[1]);
+                } else {
+                    $query->orderBy($order_by, 'DESC');
+                }
+            }
+            $query->with([
+                'country',
+                'province_start' => function ($query) {
+                    $query->select('id', 'name');
+                },
+                'province_end' => function ($query) {
+                    $query->select('id', 'name');
+                }
+            ]);
+            $tours = $query->paginate($limit, ['*'], 'page', $page);
+
+            // Add additional data to each tour
+            $tours->getCollection()->transform(function ($tour) {
+                $user_id = auth('api')->id();
+                $tour->is_like = $tour->is_like($user_id);
+                $tour->like_count = $tour->like_count();
+                return $tour;
+            });
+            return Response::json(true, 'Get list tour successfully', $tours->items(), [
+                'current_page' => $tours->currentPage(),
+                'last_page' => $tours->lastPage(),
+                'per_page' => $tours->perPage(),
+                'total' => $tours->total(),
+                'next_page_url' => $tours->nextPageUrl(),
+                'prev_page_url' => $tours->previousPageUrl(),
+            ]);
+
+
+        } catch (Exception $e) {
+            return Response::json(false, "Error: " . $e->getMessage());
+        }
+
+
+
+    }
     private function applyFilters($query, $key, $value)
     {
         if ($key && $value) {
@@ -449,10 +589,10 @@ class TourController extends Controller
                     return $query->where($key, 'LIKE', '%' . $value . '%');
             }
         }
-    
+
         return $query;
     }
-    
+
     private function applyRangeFilter($query, $key, $value)
     {
         $range = explode('-', $value);
@@ -462,7 +602,7 @@ class TourController extends Controller
             return $query->where($key, '>=', $value);
         }
     }
-    
+
     private function applySorting($query, $sort)
     {
         if ($sort) {
@@ -473,7 +613,7 @@ class TourController extends Controller
                 return $query->orderBy($sort, 'DESC');
             }
         }
-    
+
         return $query;
     }
 
@@ -517,10 +657,10 @@ class TourController extends Controller
                 return Response::json(false, 'Tour not found', null);
             }
             $tour->images = json_decode($tour->images);
-            $tour->like_count= $tour->like_count();
+            $tour->like_count = $tour->like_count();
 
-            $user_id =auth('api')->id()??null;
-            $tour->is_like= $tour->is_like($user_id);
+            $user_id = auth('api')->id() ?? null;
+            $tour->is_like = $tour->is_like($user_id);
             return Response::json(true, 'Get tour detail successfully', $tour);
 
         } catch (Exception $e) {
@@ -673,33 +813,33 @@ class TourController extends Controller
     }
 
     /**
-* @OA\Get(
-*      path="/api/tour/like/{tour_id}",
-*      operationId="like_tour",
-*      tags={"Tour"},
-*      summary="Like or unlike a tour",
-*      description="Returns status",
-*     
-*      security={{
-*         "bearer": {}
-*     }},
-*     @OA\Parameter(
-*          name="tour_id",
-*          description="tour_id",
-*          required=true,
-*          in="path",
-*          @OA\Schema(
-*              type="string"
-*          )
-*      ),
-*     @OA\Response(
-*         response=400,
-*         description="Invalid ID supplied"
-*     ),
-* 
-*     
-* )
-*/
+     * @OA\Get(
+     *      path="/api/tour/like/{tour_id}",
+     *      operationId="like_tour",
+     *      tags={"Tour"},
+     *      summary="Like or unlike a tour",
+     *      description="Returns status",
+     *     
+     *      security={{
+     *         "bearer": {}
+     *     }},
+     *     @OA\Parameter(
+     *          name="tour_id",
+     *          description="tour_id",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid ID supplied"
+     *     ),
+     * 
+     *     
+     * )
+     */
     public function like($tour_id)
     {
         try {
@@ -797,5 +937,177 @@ class TourController extends Controller
             return Response::json(false, 'An error occurred while getting order history', $e->getMessage());
         }
 
+    }
+
+    private $VNP_TMN_CODE = 'RIIFM9FX';
+    private $VNP_HASH_SECRET = 'YETJQVOMBAKTQRBNBOQVCXFOQGDVJJPA';
+    private $VNP_URL = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
+    private $VNP_RETURN_URL = 'http://localhost:4200/';
+    public function checkoutVnpay(Request $request)
+    {
+
+        try {
+            $startTime = date("YmdHis");
+            $expire = date('YmdHis', strtotime('+15 minutes', strtotime($startTime)));
+            $vnp_TmnCode = $this->VNP_TMN_CODE;
+            $vnp_HashSecret = $this->VNP_HASH_SECRET;
+            $vnp_Url = $this->VNP_URL;
+            $vnp_Returnurl = $this->VNP_RETURN_URL . $request->returnUrl;
+
+            $vnp_TxnRef = rand(1, 10000);
+            $vnp_OrderInfo = "Payment for order #" . $vnp_TxnRef;
+            $vnp_OrderType = 'billpayment';
+            $vnp_Amount = $request->amount * 100;
+            $vnp_Locale = 'vn';
+            $vnp_BankCode = $request->bank_name ??'';
+            $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
+
+            $inputData = array(
+                "vnp_Version" => "2.1.0",
+                "vnp_TmnCode" => $vnp_TmnCode,
+                "vnp_Amount" => $vnp_Amount ,
+                "vnp_Command" => "pay",
+                "vnp_CreateDate" => date('YmdHis'),
+                "vnp_CurrCode" => "VND",
+                "vnp_IpAddr" => $vnp_IpAddr,
+                "vnp_Locale" => $vnp_Locale,
+                "vnp_OrderInfo" => "Thanh toan GD:" . $vnp_TxnRef . '-' . $vnp_OrderInfo,
+                "vnp_OrderType" => "other",
+                "vnp_ReturnUrl" => $vnp_Returnurl,
+                "vnp_TxnRef" => $vnp_TxnRef,
+                "vnp_ExpireDate" => $expire
+
+            );
+            if (isset($vnp_BankCode) && $vnp_BankCode != "") {
+                $inputData['vnp_BankCode'] = $vnp_BankCode;
+            }
+
+            ksort($inputData);
+            $query = "";
+            $i = 0;
+            $hashdata = "";
+            foreach ($inputData as $key => $value) {
+                if ($i == 1) {
+                    $hashdata .= '&' . urlencode($key) . "=" . urlencode($value);
+                } else {
+                    $hashdata .= urlencode($key) . "=" . urlencode($value);
+                    $i = 1;
+                }
+                $query .= urlencode($key) . "=" . urlencode($value) . '&';
+            }
+
+            $vnp_Url = $vnp_Url . "?" . $query;
+            if (isset($vnp_HashSecret)) {
+                $vnpSecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret);//  
+                $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
+            }
+            return Response::json(true, 'success', ['vnp_Url' => $vnp_Url]);
+        } catch (Exception $e) {
+            return Response::json(false, $e->getMessage());
+        }
+    }
+
+    public function checkoutVnpayResult(Request $request)
+    {
+        $vnp_HashSecret = $this->VNP_HASH_SECRET;
+        $inputData = array();
+        foreach ($request->all() as $key => $value) {
+            if (substr($key, 0, 4) == "vnp_") {
+                $inputData[$key] = $value;
+            }
+        }
+        unset($inputData['vnp_SecureHash']);
+        ksort($inputData);
+        $i = 0;
+        $hashData = "";
+        foreach ($inputData as $key => $value) {
+            if ($i == 1) {
+                $hashData = $hashData . '&' . urlencode($key) . "=" . urlencode($value);
+            } else {
+                $hashData = $hashData . urlencode($key) . "=" . urlencode($value);
+                $i = 1;
+            }
+        }
+
+        $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
+        if ($secureHash == $request->vnp_SecureHash) {
+            if ($request->vnp_ResponseCode == '00') {
+                // Payment successful==========================================
+                $validate = Validator::make($request->all(), [
+                    'email' => 'required|email|string',
+                    'full_name' => 'required|string',
+                    'address' => 'required|string',
+                    'phone_number' => 'required|string',
+                    'quantity' => 'required|integer',
+                    'tour_id' => 'required|integer'
+                ]);
+
+                if ($validate->fails()) {
+                    return Response::json(false, 'Validation failed', $validate->errors());
+                }
+
+                $quantity_child = $request->quantity_child ?? 0;
+                $quantity_baby = $request->quantity_baby ?? 0;
+                $tour = Product::where('id', $request->tour_id)->with(['country', 'province_start', 'province_end', 'process_tour', 'tourguide'])
+                    ->first();
+                if (!$tour) {
+                    return Response::json(false, 'tour_id not found!', null);
+                }
+                if ($tour->quantity < ($request->quantity + $quantity_child + $quantity_baby)) {
+                    return Response::json(false, 'Not enough quantity', null);
+
+                }
+                $subtotal = $tour->price * $request->quantity + $tour->price_child * $quantity_child
+                    + $tour->price_baby * $quantity_baby;
+                $total = $subtotal + $tour->additional_fee;
+
+                $order = Order::create([
+                    'email' => $request->email,
+                    'full_name' => $request->full_name,
+                    'address' => $request->address,
+                    'status' => 'success',
+                    'phone_number' => $request->phone_number,
+                    'payment_status' => 1,
+                    'subtotal' => $subtotal,
+                    'total' => $total,
+                    'note' => $request->note ?? "",
+                ]);
+                $order_detail = OrderDetail::create([
+                    'order_id' => $order->id,
+                    'product_id' => $tour->id,
+                    'quantity' => $request->quantity,
+                    'quantity_child' => $quantity_child,
+                    'quantity_baby' => $quantity_baby,
+                    'additional_fee' => $tour->additional_fee,
+                    'price' => $tour->price,
+                    'price_child' => $tour->price_child,
+                    'price_baby' => $tour->price_baby,
+                ]);
+
+                // send mail 
+                $data['email'] = $request->email;
+                $data['title'] = "Xác nhận đặt Tour tại Quin Travel";
+                $data['tour'] = $tour;
+                $data['subtotal'] = $total;
+                $data['total'] = $total;
+                $data['order'] = $order;
+                $data['order_detail'] = $order_detail;
+                Mail::send("mail", ['data' => $data], function ($message) use ($data) {
+                    $message->to($data['email'])->subject($data['title']);
+                });
+                $order['order_detail'] = $order_detail;
+                $order['order_detail']['product'] = $tour;
+                return Response::json(true, 'Order successfully created', $order);
+                // Payment successful==========================================
+
+
+            } else {
+                // Payment failed
+                return Response::json(false, "Payment failed!");
+            }
+        } else {
+            // Invalid signature
+            return Response::json(false, "Invalid signature!");
+        }
     }
 }

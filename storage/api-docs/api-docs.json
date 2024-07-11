@@ -275,6 +275,37 @@
                 }
             }
         },
+        "/api/auth/withgoogle": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Login with google",
+                "description": "Returns user",
+                "operationId": "withgoogle",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "id_token": {
+                                        "description": "Your ID token, used to identify",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
         "/api/news/list_news": {
             "get": {
                 "tags": [
@@ -547,6 +578,115 @@
                         "name": "value",
                         "in": "query",
                         "description": "value of tour to return (1-4,1000-2000,hotel,...)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Invalid ID supplied"
+                    }
+                }
+            }
+        },
+        "/api/tour/filterproducts": {
+            "get": {
+                "tags": [
+                    "Tour"
+                ],
+                "summary": "Get filter list list_tour",
+                "description": "Returns list list_tour information",
+                "operationId": "filterproducts",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "page of tour to return",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "limit of tour to return",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "inside, ouside",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "province_start_id",
+                        "in": "query",
+                        "description": "province_id)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "province_end_id",
+                        "in": "query",
+                        "description": "province_id)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "number_of_day",
+                        "in": "query",
+                        "description": "0-4, 3)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "date_start",
+                        "in": "query",
+                        "description": "2024-08-23",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "price",
+                        "in": "query",
+                        "description": "10000-450000, 3000000)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "tour_pakage",
+                        "in": "query",
+                        "description": "('luxury','standard','affordable','saving')",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "(created_at-asc,desc)",
                         "required": false,
                         "schema": {
                             "type": "string"

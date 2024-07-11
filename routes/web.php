@@ -49,5 +49,5 @@ Route::middleware([AdminMiddleware::class])->group(function () {
 });
 
 Route::get('/mail', function () {
-    return view('mail');
+    return view('mail1');
 });
