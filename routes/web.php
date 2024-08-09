@@ -20,9 +20,10 @@ Route::post('/login', [AdminController::class, 'login_']);
 
 Route::middleware([AdminMiddleware::class])->group(function () {
     Route::get('/', [AdminController::class, 'list'])->name('list');
-
+    Route::get('/list_orders', [AdminController::class, 'orderlist'])->name('orderlist');
     Route::prefix('news')->group(function(){
         Route::get('/', [AdminNewsController::class, 'list'])->name('newslist');
+     
         Route::get('/delete/{id}', [AdminNewsController::class, 'delete']);
         Route::get('/show/{id}', [AdminNewsController::class, 'show']);
         Route::get('/hidden/{id}', [AdminNewsController::class, 'hidden']);
@@ -50,4 +51,7 @@ Route::middleware([AdminMiddleware::class])->group(function () {
 
 Route::get('/mail', function () {
     return view('mail1');
+});
+Route::get('/changepassword', function () {
+    return view('mailchangepassword1');
 });

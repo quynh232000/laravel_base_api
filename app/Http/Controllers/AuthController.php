@@ -12,6 +12,7 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Str;
 use Hash;
@@ -291,9 +292,6 @@ class AuthController extends Controller
         if (!$token = auth('api')->attempt($validator->validated())) {
             return Response::json(false, 'Mật khẩu không đúng!', $validator->errors());
         }
-
-
-
         return Response::json(true, 'Login successfully!', auth('api')->user(), $this->respondWithToken($token));
     }
 
@@ -465,7 +463,7 @@ class AuthController extends Controller
     }
 
 
-     /**
+    /**
      * @OA\Post(
      *      path="/api/auth/withgoogle",
      *      operationId="withgoogle",
@@ -501,7 +499,7 @@ class AuthController extends Controller
                 return Response::json(false, 'Missing parameters id_token', $validator->errors());
             }
             $token = ($request->id_token);
-    
+
             $parts = explode('.', $token);
             if (count($parts) !== 3) {
                 return Response::json(false, "Invalid token");
@@ -510,18 +508,18 @@ class AuthController extends Controller
             $decodedPayload = base64_decode($payload);
             if ($decodedPayload === false) {
                 return Response::json(false, "Base64 decode failed");
-    
+
             }
             $data = json_decode($decodedPayload, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
                 return Response::json(false, "JSON decode failed: " . json_last_error_msg());
-    
+
             }
             $user = User::where('email', $data['email'])->first();
             // return $data;
             if ($user) {
                 $token = auth('api')->login($user);
-                return Response::json(true, 'Login successfully!', auth('api')->user(), $this->respondWithToken($token));
+                return Response::json(true, 'Đăng nhập thành công!', auth('api')->user(), $this->respondWithToken($token));
             } else {
                 $user = new User();
                 $user->uuid = Str::uuid();
@@ -531,14 +529,145 @@ class AuthController extends Controller
                 $user->password = Hash::make(Str::random(16));
                 $user->save();
                 $token = auth('api')->login($user);
-                return Response::json(true, 'Register successfully!', auth('api')->user(), $this->respondWithToken($token));
+                return Response::json(true, 'Đăng kí thành công!', auth('api')->user(), $this->respondWithToken($token));
             }
-    
+
         } catch (Exception $e) {
-            return Response::json(false, "Error: ". $e->getMessage());
+            return Response::json(false, "Error: " . $e->getMessage());
         }
 
 
 
     }
+
+
+    /**
+     * @OA\Post(
+     *      path="/api/auth/forgotpassword",
+     *      operationId="forgotpassword",
+     *      tags={"Users"},
+     *      summary="forgotpassword",
+     *      description="forgotpassword",
+     *     
+     *     @OA\RequestBody(
+     *         required=false,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="email",
+     *                     description="Your email",
+     *                     type="string",
+     *                 ),
+     *             )
+     *         )
+     *     ),
+     *      @OA\Response(response="405", description="Invalid input"),
+     * )
+     */
+
+    public function forgotpassword(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|string',
+            ]);
+            if ($validator->fails()) {
+                return Response::json(false, 'Vui lòng nhập Email', $validator->errors());
+            }
+            $user = User::where(['email' => $request->email])->first();
+            if (!$user) {
+                return Response::json(false, 'Email không tồn tại trên hệ thống');
+            }
+
+            $token = Str::random(60);
+            $user->remember_token = $token;
+            $user->save();
+
+            // send mail 
+
+            $url = "http://localhost:4200/changepassword/" . $token;
+
+            $data['title'] = "Xác nhận thay đổi mật khẩu mới tại Quin Travel";
+            $data['url'] = $url;
+            $data['user'] = $user;
+            $data['email'] = $user->email;
+
+            Mail::send("mailchangepassword", ['data' => $data], function ($message) use ($data) {
+                $message->to($data['email'])->subject($data['title']);
+            });
+
+            return Response::json(true, "Vui lòng kiểm tra email để xác nhận thay đổi mật khẩu!");
+
+
+        } catch (Exception $e) {
+            return Response::json(false, "Error: " . $e->getMessage());
+        }
+
+
+
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/api/auth/changepassword",
+     *      operationId="changepassword",
+     *      tags={"Users"},
+     *      summary="changepassword",
+     *      description="changepassword",
+     *     
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="password",
+     *                     description="Your password",
+     *                     type="string",
+     *                 ),
+     *             ),
+     *              @OA\Schema(
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="token",
+     *                     description="Your token",
+     *                     type="string",
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *      @OA\Response(response="405", description="Invalid input"),
+     * )
+     */
+    public function changepassword(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'password' => 'required|string',
+                'token' => 'required|string',
+            ]);
+            if ($validator->fails()) {
+                return Response::json(false, 'Vui lòng nhập đầy đủ thông tin', $validator->errors());
+            }
+            $user = User::where(['remember_token' => $request->token])->first();
+            if (!$user) {
+                return Response::json(false, 'Token không hợp lệ hoặc đã hết hạn');
+            }
+            $user->password = Hash::make($request->password);
+            $user->remember_token = null;
+            $user->save();
+            return Response::json(true, "Đặt mật khẩu mới thành công!");
+
+
+        } catch (Exception $e) {
+            return Response::json(false, "Error: " . $e->getMessage());
+        }
+
+
+
+    }
+
 }

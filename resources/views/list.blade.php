@@ -68,6 +68,9 @@
     span.relative.z-0.inline-flex.rtl\:flex-row-reverse.shadow-sm.rounded-md {
         display: none !important;
 }
+p.text-sm.text-gray-700.leading-5.dark\:text-gray-400 {
+    display: none !important;
+}
 
 
 </style>

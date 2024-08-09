@@ -10,9 +10,10 @@ class AdminNewsController extends Controller
 {
     public function list()
     {
-        $news = News::latest()->paginate(10);
+        $news = News::latest()->paginate(20);
         return view('list_news', compact('news'));
     }
+ 
     public function delete($id)
     {
         $product = News::find($id);

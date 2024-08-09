@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Country;
 use App\Models\News;
+use App\Models\Order;
 use App\Models\ProcessTour;
 use App\Models\Product;
 use App\Models\Province;
@@ -21,8 +22,14 @@ class AdminController extends Controller
 
     public function list()
     {
-        $tours = Product::latest()->paginate(10);
+        $tours = Product::latest()->paginate(20);
         return view('list', compact('tours'));
+    }
+
+    public function orderlist()
+    {
+        $orders = Order::with('order_detail.product.tourguide')->latest()->paginate(20);
+        return view('list_orders', compact('orders'));
     }
     public function login_(Request $request)
     {

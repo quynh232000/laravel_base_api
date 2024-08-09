@@ -306,6 +306,68 @@
                 }
             }
         },
+        "/api/auth/forgotpassword": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "forgotpassword",
+                "description": "forgotpassword",
+                "operationId": "forgotpassword",
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "description": "Your email",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/api/auth/changepassword": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "changepassword",
+                "description": "changepassword",
+                "operationId": "changepassword",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "password": {
+                                        "description": "Your password",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
         "/api/news/list_news": {
             "get": {
                 "tags": [

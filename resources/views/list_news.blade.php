@@ -61,7 +61,11 @@
             </table>
         </div>
     </div>
-
+<style>
+    p.text-sm.text-gray-700.leading-5.dark\:text-gray-400 {
+    display: none !important;
+}
+</style>
     <div class="row">
         <div class="col-md-12">
             <div class="my-3 d-flex justify-content-center ">

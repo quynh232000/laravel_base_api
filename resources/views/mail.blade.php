@@ -65,7 +65,7 @@
                     <div style="border: 1px solid gray; margin: 10px 0; padding: 10px;border-radius: 10px;">
                         <div style="font-weight: bold; color: green;">Trạng thái thanh toán</div>
                         <div style="background-color: bisque; padding: 8px; text-align: center; margin-top: 6px;font-weight: bold;color: blue;" >
-                            {{ $data['order']['status'] == 0 ? 'Chưa thanh toán' : 'Đã thanh toán' }}</div>
+                            {{ $data['order']['payment_status'] == 0 ? 'Chưa thanh toán' : 'Đã thanh toán' }}</div>
                     </div>
                     <div style="padding: 10px;">
                         <div  style="font-weight: bold; color: green;">Chi tiết đơn hàng đơn hàng</div>
